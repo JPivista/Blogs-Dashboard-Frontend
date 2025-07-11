@@ -28,14 +28,17 @@ const LeadsListPage = () => {
     }, []);
 
     // Filtering
-    const filteredLeads = (leads || []).filter(lead => {
-        const q = search.toLowerCase();
-        return (
-            lead.name.toLowerCase().includes(q) ||
-            lead.phone_number.toLowerCase().includes(q) ||
-            lead.category.toLowerCase().includes(q)
-        );
-    });
+    const filteredLeads = Array.isArray(leads)
+        ? leads.filter(lead => {
+            const q = search.toLowerCase();
+            return (
+                (lead.name || "").toLowerCase().includes(q) ||
+                (lead.phone_number || "").toLowerCase().includes(q) ||
+                (lead.category || "").toLowerCase().includes(q)
+            );
+        })
+        : [];
+
 
 
     // Pagination
