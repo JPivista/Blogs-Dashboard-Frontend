@@ -28,7 +28,7 @@ const LeadsListPage = () => {
     }, []);
 
     // Filtering
-    const filteredLeads = leads.filter(lead => {
+    const filteredLeads = (leads || []).filter(lead => {
         const q = search.toLowerCase();
         return (
             lead.name.toLowerCase().includes(q) ||
@@ -37,9 +37,11 @@ const LeadsListPage = () => {
         );
     });
 
+
     // Pagination
-    const totalPages = Math.ceil(filteredLeads.length / perPage);
-    const paginatedLeads = filteredLeads.slice((page - 1) * perPage, page * perPage);
+    const safeFilteredLeads = filteredLeads || [];
+    const totalPages = Math.ceil(safeFilteredLeads.length / perPage);
+    const paginatedLeads = safeFilteredLeads.slice((page - 1) * perPage, page * perPage);
 
     // Selection
     const handleSelect = (id) => {
