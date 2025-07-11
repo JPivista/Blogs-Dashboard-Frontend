@@ -9,7 +9,7 @@ const getNavItems = (role) => {
             { name: 'Dashboard', path: '/superadmin', icon: <FiHome /> },
             { name: 'All Blogs', path: '/blogs', icon: <FiUsers /> },
             { name: 'Categories', path: '/categories', icon: <FiTag /> },
-            { name: 'Lead', path: '/profile', icon: <FaUserCheck /> },
+            { name: 'Lead', path: '/lead', icon: <FaUserCheck /> },
             { name: 'Settings', path: '/settings', icon: <FiSettings /> },
         ];
     } else {

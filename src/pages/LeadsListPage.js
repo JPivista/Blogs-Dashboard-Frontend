@@ -15,7 +15,7 @@ const LeadsListPage = () => {
         const fetchLeads = async () => {
             setLoading(true);
             try {
-                const res = await axios.get('/leads');
+                const res = await axios.get('https://blogs-dashboard-backend.vercel.app/leads');
                 setLeads(res.data);
                 setError('');
             } catch (err) {
