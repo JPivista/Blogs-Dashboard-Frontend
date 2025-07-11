@@ -99,7 +99,7 @@ const App = () => {
           <Route path="/blogs/edit/:idOrSlug" element={<Layout user={user} setUser={setUser} onLogout={handleLogout}><EditBlogPage /></Layout>} />
           <Route path="/blogs/:idOrSlug" element={<Layout user={user} setUser={setUser} onLogout={handleLogout}><ViewBlogPage /></Layout>} />
           <Route path="/categories" element={<Layout user={user} setUser={setUser} onLogout={handleLogout}><CategoryManagementPage /></Layout>} />
-          <Route path="/profile" element={<Layout user={user} setUser={setUser} onLogout={handleLogout}><LeadsListPage /></Layout>} />
+          <Route path="/lead" element={<Layout user={user} setUser={setUser} onLogout={handleLogout}><LeadsListPage /></Layout>} />
           {/* Catch all route */}
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
