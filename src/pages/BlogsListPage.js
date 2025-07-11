@@ -16,13 +16,13 @@ const StatusDropdown = ({ value, onChange }) => (
             <option value="published" className="text-green-600">Published</option>
             <option value="draft" className="text-red-600">Draft</option>
         </select>
-        <div className="text-xs mt-1 font-semibold">
+        {/* <div className="text-xs mt-1 font-semibold">
             {value === 'published' ? (
                 <span className="text-green-600">Published</span>
             ) : (
                 <span className="text-red-600">Draft</span>
             )}
-        </div>
+        </div> */}
     </div>
 );
 

@@ -5,6 +5,7 @@ import ProfileModal from './ProfileModal';
 import PasswordModal from './PasswordModal';
 import SettingsModal from './SettingsModal';
 import { getProfile } from '../api/auth';
+import { useLocation, Link } from 'react-router-dom';
 
 const Layout = ({ user, setUser, onLogout, children }) => {
     const [showProfileModal, setShowProfileModal] = useState(false);
@@ -38,6 +39,35 @@ const Layout = ({ user, setUser, onLogout, children }) => {
         return child;
     });
 
+    // Breadcrumbs component
+    const Breadcrumbs = () => {
+        const location = useLocation();
+        const pathnames = location.pathname.split('/').filter(x => x);
+        return (
+            <nav className="text-sm text-gray-500 mb-6" aria-label="Breadcrumb">
+                <ol className="list-none p-0 inline-flex">
+                    <li className="flex items-center">
+                        <Link to="/" className="hover:underline text-blue-600">Home</Link>
+                    </li>
+                    {pathnames.map((name, idx) => {
+                        const routeTo = '/' + pathnames.slice(0, idx + 1).join('/');
+                        const isLast = idx === pathnames.length - 1;
+                        return (
+                            <li key={routeTo} className="flex items-center">
+                                <span className="mx-2">/</span>
+                                {isLast ? (
+                                    <span className="font-semibold text-gray-700">{decodeURIComponent(name.replace(/-/g, ' '))}</span>
+                                ) : (
+                                    <Link to={routeTo} className="hover:underline text-blue-600">{decodeURIComponent(name.replace(/-/g, ' '))}</Link>
+                                )}
+                            </li>
+                        );
+                    })}
+                </ol>
+            </nav>
+        );
+    };
+
     return (
         <div className="flex h-screen  bg-gray-100 overflow-hidden">
             <Sidebar user={user} onLogout={onLogout} />
@@ -49,6 +79,7 @@ const Layout = ({ user, setUser, onLogout, children }) => {
                     onLogout={onLogout}
                 />
                 <main className='h-screen p-8 overflow-y-scroll w-full'>
+                    <Breadcrumbs />
                     {childrenWithProps}
                 </main>
             </div>

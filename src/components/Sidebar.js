@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FiHome, FiUser, FiSettings, FiLogOut, FiMenu, FiUsers, FiUserPlus, FiTag } from 'react-icons/fi';
+import { FaUserCheck } from 'react-icons/fa'; // or MdOutlinePersonSearch
 
 const getNavItems = (role) => {
     if (role === 'superadmin') {
@@ -8,7 +9,7 @@ const getNavItems = (role) => {
             { name: 'Dashboard', path: '/superadmin', icon: <FiHome /> },
             { name: 'All Blogs', path: '/blogs', icon: <FiUsers /> },
             { name: 'Categories', path: '/categories', icon: <FiTag /> },
-            { name: 'Profile', path: '/profile', icon: <FiUser /> },
+            { name: 'Lead', path: '/profile', icon: <FaUserCheck /> },
             { name: 'Settings', path: '/settings', icon: <FiSettings /> },
         ];
     } else {
@@ -25,7 +26,7 @@ const Sidebar = ({ user, onLogout, isOpen, onToggle }) => {
 
             <div className='flex flex-col justify-between h-screen'>
                 <div className="flex items-center justify-between h-16 px-6 border-b">
-                    <span className="font-bold text-xl text-blue-600">TailAdmin</span>
+                    <span className="font-bold text-xl text-blue-600"><img src="/nypunya-logo_new.png" alt="Nypunya Logo" className="" /></span>
                     <button className="md:hidden text-2xl" onClick={onToggle}>
                         <FiMenu />
                     </button>
