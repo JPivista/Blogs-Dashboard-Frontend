@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createBlog } from '../api/blogs';
 import { getMainCategories, getSubcategories } from '../api/categories';
 import { useNavigate } from 'react-router-dom';
+import TinyMCEEditor from '../TinyMCEEditor';
 
 function slugify(str) {
     return str
@@ -146,8 +147,10 @@ const CreateBlogPage = () => {
                         <input name="slug" value={form.slug} onChange={handleChange} className="w-full border p-2 rounded" required />
                     </div>
                     <div>
-                        <label className="block font-medium">Description (HTML allowed)</label>
-                        <textarea name="description" value={form.description} onChange={handleChange} className="w-full border p-2 rounded h-32" required />
+                        <TinyMCEEditor
+                            value={form.description}
+                            onChange={desc => setForm(prev => ({ ...prev, description: desc }))}
+                        />
                     </div>
                     <div>
                         <label className="block font-medium">Meta Title</label>
