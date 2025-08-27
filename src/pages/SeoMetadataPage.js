@@ -13,53 +13,6 @@ const SeoMetadataPage = () => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [showBulkEdit, setShowBulkEdit] = useState(false);
 
-    // Utility function to ensure image URLs are absolute
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return null;
-        if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-            return imagePath;
-        }
-        // If it's a relative path, make it absolute
-        const baseUrl = process.env.REACT_APP_API || 'http://localhost:7010';
-        return `${baseUrl}${imagePath}`;
-    };
-
-    // Image component with error handling
-    const ImageWithFallback = ({ src, alt, className, fallbackText = "Image failed to load" }) => {
-        const [imageError, setImageError] = useState(false);
-        const [imageLoading, setImageLoading] = useState(true);
-
-        if (!src) {
-            return <span className="text-gray-400 text-xs">{fallbackText}</span>;
-        }
-
-        return (
-            <div className="relative">
-                {imageLoading && (
-                    <div className={`${className} bg-gray-200 animate-pulse flex items-center justify-center`}>
-                        <div className="text-xs text-gray-500">Loading...</div>
-                    </div>
-                )}
-                <img
-                    src={src}
-                    alt={alt}
-                    className={`${className} ${imageLoading ? 'hidden' : ''}`}
-                    onLoad={() => setImageLoading(false)}
-                    onError={(e) => {
-                        console.error('Image failed to load:', src);
-                        setImageError(true);
-                        setImageLoading(false);
-                    }}
-                />
-                {imageError && (
-                    <div className={`${className} bg-red-100 border border-red-300 flex items-center justify-center`}>
-                        <span className="text-xs text-red-600">{fallbackText}</span>
-                    </div>
-                )}
-            </div>
-        );
-    };
-
     // Form state
     const [formData, setFormData] = useState({
         pageIdentifier: '',
@@ -70,8 +23,7 @@ const SeoMetadataPage = () => {
         ogDescription: '',
         keywords: '',
         canonicalUrl: '',
-        socialMediaImage: null,
-        isActive: true
+        socialMediaImage: null
     });
 
     useEffect(() => {
@@ -81,29 +33,13 @@ const SeoMetadataPage = () => {
     const fetchSeoMetadata = async () => {
         try {
             setLoading(true);
-            console.log('Fetching SEO metadata with params:', { page: currentPage, limit: 10, search: searchTerm });
-
             const response = await seoMetadataAPI.getAll({
                 page: currentPage,
                 limit: 10,
                 search: searchTerm
             });
-
-            console.log('SEO Metadata response:', response);
-
-            // Check if response has the expected structure
-            if (response && response.data) {
-                setSeoMetadata(response.data);
-                if (response.pagination) {
-                    setTotalPages(response.pagination.totalPages);
-                } else {
-                    setTotalPages(1);
-                }
-            } else {
-                console.error('Unexpected response structure:', response);
-                setSeoMetadata([]);
-                setTotalPages(1);
-            }
+            setSeoMetadata(response.data);
+            setTotalPages(response.pagination.totalPages);
         } catch (error) {
             console.error('SEO Metadata fetch error:', error);
 
@@ -127,30 +63,11 @@ const SeoMetadataPage = () => {
     };
 
     const handleFileChange = (e) => {
-        const file = e.target.files[0];
         setFormData(prev => ({
             ...prev,
-            socialMediaImage: file
+            socialMediaImage: e.target.files[0]
         }));
     };
-
-    // Create preview URL for uploaded image
-    const getImagePreview = () => {
-        if (formData.socialMediaImage) {
-            return URL.createObjectURL(formData.socialMediaImage);
-        }
-        return null;
-    };
-
-    // Cleanup image preview URLs on unmount
-    useEffect(() => {
-        return () => {
-            // Cleanup any created object URLs
-            if (formData.socialMediaImage) {
-                URL.revokeObjectURL(getImagePreview());
-            }
-        };
-    }, [formData.socialMediaImage]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -160,26 +77,16 @@ const SeoMetadataPage = () => {
             const formDataToSend = new FormData();
             Object.keys(formData).forEach(key => {
                 if (key === 'keywords') {
-                    // Send keywords as a string, backend will parse it
-                    formDataToSend.append(key, formData[key]);
+                    formDataToSend.append(key, formData[key].split(',').map(k => k.trim()));
                 } else if (formData[key] !== null && formData[key] !== '') {
                     formDataToSend.append(key, formData[key]);
                 }
             });
 
-            // Debug: Log what we're sending
-            console.log('Form data being sent:', formData);
-            console.log('FormData object contents:');
-            for (let [key, value] of formDataToSend.entries()) {
-                console.log(`${key}: ${value}`);
-            }
-
             if (editingItem) {
-                console.log('Updating SEO metadata with ID:', editingItem._id);
                 await seoMetadataAPI.update(editingItem._id, formDataToSend);
                 toast.success('SEO metadata updated successfully');
             } else {
-                console.log('Creating new SEO metadata');
                 await seoMetadataAPI.create(formDataToSend);
                 toast.success('SEO metadata created successfully');
             }
@@ -187,7 +94,6 @@ const SeoMetadataPage = () => {
             resetForm();
             fetchSeoMetadata();
         } catch (error) {
-            console.error('Submit error:', error);
             toast.error(error.message || 'Operation failed');
         } finally {
             setLoading(false);
@@ -195,7 +101,6 @@ const SeoMetadataPage = () => {
     };
 
     const handleEdit = (item) => {
-        console.log('Editing item:', item);
         setEditingItem(item);
         setFormData({
             pageIdentifier: item.pageIdentifier,
@@ -204,10 +109,9 @@ const SeoMetadataPage = () => {
             metaDescription: item.metaDescription,
             ogTitle: item.ogTitle || '',
             ogDescription: item.ogDescription || '',
-            keywords: Array.isArray(item.keywords) ? item.keywords.join(', ') : (item.keywords || ''),
+            keywords: item.keywords?.join(', ') || '',
             canonicalUrl: item.canonicalUrl || '',
-            socialMediaImage: null,
-            isActive: item.isActive !== false
+            socialMediaImage: null
         });
         setShowForm(true);
     };
@@ -238,8 +142,6 @@ const SeoMetadataPage = () => {
         });
         setEditingItem(null);
         setShowForm(false);
-        setShowBulkEdit(false);
-        setSelectedItems([]);
     };
 
     const handleBulkAction = async (action) => {
@@ -485,20 +387,6 @@ const SeoMetadataPage = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-3">
-                                <input
-                                    type="checkbox"
-                                    id="isActive"
-                                    name="isActive"
-                                    checked={formData.isActive !== false}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, isActive: e.target.checked }))}
-                                    className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                                />
-                                <label htmlFor="isActive" className="text-sm font-medium text-gray-700">
-                                    Active (visible to users)
-                                </label>
-                            </div>
-
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">
                                     Social Media Image
@@ -513,31 +401,6 @@ const SeoMetadataPage = () => {
                                 <div className="text-xs text-gray-500 mt-1">
                                     Recommended size: 1200x630px, Max: 5MB
                                 </div>
-
-                                {/* Current image display */}
-                                {editingItem && editingItem.socialMediaImage && (
-                                    <div className="mt-2">
-                                        <p className="text-xs text-gray-600 mb-2">Current image:</p>
-                                        <ImageWithFallback
-                                            src={getImageUrl(editingItem.socialMediaImage)}
-                                            alt="Current social media image"
-                                            className="w-32 h-20 object-cover rounded border"
-                                            fallbackText="Image not available"
-                                        />
-                                    </div>
-                                )}
-
-                                {/* New image preview */}
-                                {formData.socialMediaImage && (
-                                    <div className="mt-2">
-                                        <p className="text-xs text-gray-600 mb-2">New image preview:</p>
-                                        <img
-                                            src={getImagePreview()}
-                                            alt="New image preview"
-                                            className="w-32 h-20 object-cover rounded border"
-                                        />
-                                    </div>
-                                )}
                             </div>
 
                             <div className="flex gap-3 pt-4">
@@ -603,9 +466,6 @@ const SeoMetadataPage = () => {
                                             Meta Description
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Image
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                             Status
                                         </th>
                                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -646,14 +506,6 @@ const SeoMetadataPage = () => {
                                                 <div className="text-sm text-gray-900 max-w-xs truncate">
                                                     {item.metaDescription}
                                                 </div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <ImageWithFallback
-                                                    src={getImageUrl(item.socialMediaImage)}
-                                                    alt="Social media image"
-                                                    className="w-16 h-12 object-cover rounded border"
-                                                    fallbackText="No image"
-                                                />
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${item.isActive
