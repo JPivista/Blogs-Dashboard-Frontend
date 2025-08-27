@@ -3,6 +3,7 @@ import { createBlog } from '../api/blogs';
 import { getMainCategories, getSubcategories } from '../api/categories';
 import { useNavigate } from 'react-router-dom';
 import TinyMCEEditor from '../TinyMCEEditor';
+import SimpleSeoForm from '../components/SimpleSeoForm';
 
 function slugify(str) {
     return str
@@ -34,6 +35,7 @@ const CreateBlogPage = () => {
     const [mainCategories, setMainCategories] = useState([]);
     const [subcategories, setSubcategories] = useState([]);
     const [categoriesLoading, setCategoriesLoading] = useState(true);
+    const [showSeoForm, setShowSeoForm] = useState(false);
     const navigate = useNavigate();
     const [slugTouched, setSlugTouched] = useState(false);
 
@@ -77,6 +79,23 @@ const CreateBlogPage = () => {
             console.error('Error fetching subcategories:', err);
             setSubcategories([]);
         }
+    };
+
+    const handleSeoSave = () => {
+        setShowSeoForm(false);
+        // You can add a success message or other actions here
+    };
+
+    const handleSeoCancel = () => {
+        setShowSeoForm(false);
+    };
+
+    // Generate a unique page identifier for this blog
+    const generatePageIdentifier = () => {
+        if (form.slug) {
+            return `blog-${form.slug}`;
+        }
+        return `blog-${slugify(form.title)}`;
     };
 
     const handleChange = (e) => {
@@ -284,6 +303,38 @@ const CreateBlogPage = () => {
                         </div>
                     ))}
                 </div>
+
+                {/* SEO Section */}
+                <div className="md:col-span-3">
+                    <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-200">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-semibold text-gray-900">SEO Optimization</h3>
+                            <button
+                                type="button"
+                                onClick={() => setShowSeoForm(!showSeoForm)}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                            >
+                                {showSeoForm ? 'Hide SEO Form' : 'Configure Advanced SEO'}
+                            </button>
+                        </div>
+
+                        {showSeoForm ? (
+                            <SimpleSeoForm
+                                pageIdentifier={generatePageIdentifier()}
+                                pageName={form.title || 'New Blog Post'}
+                                onSave={handleSeoSave}
+                                onCancel={handleSeoCancel}
+                                isInline={true}
+                            />
+                        ) : (
+                            <div className="text-center py-8 text-gray-500">
+                                <p>Click "Configure Advanced SEO" to set up comprehensive SEO metadata</p>
+                                <p className="text-sm mt-2">Includes Meta Title, Meta Description, Keywords, and Social Media Image</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 <div className="md:col-span-2">
                     <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" disabled={loading}>
                         {loading ? 'Creating...' : 'Create Blog'}

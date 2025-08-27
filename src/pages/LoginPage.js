@@ -24,10 +24,15 @@ const LoginPage = ({ setUser }) => {
         setLoading(true);
         try {
             const response = await loginUser(email, password);
-            setUser(response.data.user);
+            const userData = response.data.user;
+
+            // Cache user data for faster refresh
+            localStorage.setItem('cachedUser', JSON.stringify(userData));
+
+            setUser(userData);
 
             // Navigation will be handled by App.js routing
-            const role = response.data.user.role;
+            const role = userData.role;
             if (role === 'superadmin') navigate('/superadmin');
             else if (role === 'admin') navigate('/admin');
             else navigate('/dashboard');

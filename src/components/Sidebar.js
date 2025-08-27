@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FiHome, FiUser, FiSettings, FiLogOut, FiMenu, FiUsers, FiUserPlus, FiTag } from 'react-icons/fi';
+import { FiHome, FiUser, FiSettings, FiLogOut, FiMenu, FiUsers, FiUserPlus, FiTag, FiSearch } from 'react-icons/fi';
 import { FaUserCheck } from 'react-icons/fa'; // or MdOutlinePersonSearch
 
 const getNavItems = (role) => {
@@ -9,6 +9,7 @@ const getNavItems = (role) => {
             { name: 'Dashboard', path: '/superadmin', icon: <FiHome /> },
             { name: 'All Blogs', path: '/blogs', icon: <FiUsers /> },
             { name: 'Categories', path: '/categories', icon: <FiTag /> },
+            { name: 'SEO Metadata', path: '/seo-metadata', icon: <FiSearch /> },
             { name: 'Lead', path: '/lead', icon: <FaUserCheck /> },
             { name: 'Settings', path: '/settings', icon: <FiSettings /> },
         ];
